@@ -151,6 +151,24 @@ La documentación oficial exige además probar permisos, pertenencia y baja/cier
 
 Conserva las firmas disponibles en [Solana Explorer Devnet](https://explorer.solana.com/?cluster=devnet). Para errores en simulación previa sin firma, conserva el código o mensaje de error y verifica que las cuentas mantienen su estado.
 
+### Prueba negativa con una wallet distinta
+
+La prueba de autorización se ejecuta por consola sin cambiar la wallet del frontend:
+
+```bash
+cd app
+npm run prueba:negativa:wallet
+```
+
+El script genera una wallet efímera en memoria, solicita SOL de Devnet y simula
+`cambiar_monto` sobre la Venta #2 de Ana usando esa wallet como signer. No
+guarda la clave privada ni envía la transacción a la red. La evidencia queda en
+[app/docs/evidencias/caso-negativo-wallet-no-autorizada.json](app/docs/evidencias/caso-negativo-wallet-no-autorizada.json).
+
+Resultado esperado: rechazo `NoOwner`, sin firma publicada y sin modificación
+de la Venta #2. La wallet generada es distinta de la wallet propietaria
+`CgRv5Sj8bgc3Lw3MZ7gDVEdTXfQ9orwpXuUR146tQ8xQ`.
+
 ## Estado de entrega
 
 - Código publicado: [repositorio](https://github.com/oscaracu/registro-ventas-solana)

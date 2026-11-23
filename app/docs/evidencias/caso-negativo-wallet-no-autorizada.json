@@ -1,0 +1,41 @@
+{
+  "fecha": "2026-11-23T06:23:57.320Z",
+  "red": "devnet",
+  "rpc": "https://api.devnet.solana.com",
+  "operacion": "cambiar_monto",
+  "walletPrueba": "BnfPrt2Y7znGCRfxFrkeRy2z8zrcsY4VRhiZnMHiG9H8",
+  "cuentasObjetivo": {
+    "registro": "Cc2c6p4KEKF9ct15e9tNHzdiJ3xPLRjuYMSehSAHaWJ8",
+    "cliente": "EXGr16T7cEZFSDuzvnDo1tqT5hdHmEAMFkkVnf43t7JQ",
+    "venta": "z15RmUs7KKTDnwWNVpPZrEzhYfE6HubYSwk7Nw6Vopj",
+    "idCliente": 1,
+    "idVenta": 2
+  },
+  "montoSolicitado": 99,
+  "transaccionEnviada": false,
+  "resultado": "rechazada",
+  "error": {
+    "InstructionError": [
+      0,
+      {
+        "Custom": 6000
+      }
+    ]
+  },
+  "logs": [
+    "Program AzKi4QgysdSYuhahL2P114mRWHRDPNWJtDfhYe39ByRD invoke [1]",
+    "Program log: Instruction: CambiarMonto",
+    "Program log: AnchorError caused by account: registro. Error Code: NoOwner. Error Number: 6000. Error Message: Error, no eres el owner del registro.",
+    "Program log: Left:",
+    "Program log: CgRv5Sj8bgc3Lw3MZ7gDVEdTXfQ9orwpXuUR146tQ8xQ",
+    "Program log: Right:",
+    "Program log: BnfPrt2Y7znGCRfxFrkeRy2z8zrcsY4VRhiZnMHiG9H8",
+    "Program AzKi4QgysdSYuhahL2P114mRWHRDPNWJtDfhYe39ByRD consumed 4947 of 200000 compute units",
+    "Program AzKi4QgysdSYuhahL2P114mRWHRDPNWJtDfhYe39ByRD failed: custom program error: 0x1770"
+  ],
+  "cuentaPrograma": "AzKi4QgysdSYuhahL2P114mRWHRDPNWJtDfhYe39ByRD",
+  "verificacion": {
+    "ventaNoModificada": "La simulacion no envia la transaccion; la Venta #2 permanece intacta.",
+    "clavePrivadaPublicada": false
+  }
+}
