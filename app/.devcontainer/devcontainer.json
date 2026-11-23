@@ -1,0 +1,18 @@
+{
+  "name": "WayLearn - Registro de Ventas",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "postCreateCommand": "cd /workspace/app && npm ci && npm run cliente",
+  "remoteUser": "node",
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": {
+      "label": "Registro de ventas",
+      "onAutoForward": "openBrowser"
+    }
+  }
+}
