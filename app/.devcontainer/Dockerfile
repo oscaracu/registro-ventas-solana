@@ -18,7 +18,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
 ENV PATH="/home/node/.cargo/bin:${PATH}"
 
-RUN sudo curl -L https://github.com/anza-xyz/agave/releases/download/v1.18.26/solana-release-x86_64-unknown-linux-gnu.tar.bz2 \
+RUN sudo curl -L https://github.com/anza-xyz/agave/releases/latest/download/solana-release-x86_64-unknown-linux-gnu.tar.bz2 \
         -o /tmp/solana.tar.bz2 \
     && sudo tar -xjf /tmp/solana.tar.bz2 -C /tmp \
     && sudo cp -a /tmp/solana-release/bin/. /usr/local/bin/

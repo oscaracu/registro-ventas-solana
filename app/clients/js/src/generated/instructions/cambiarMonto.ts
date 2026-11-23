@@ -37,12 +37,15 @@ import {
 } from "@solana/kit";
 import {
   getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  getNonNullResolvedInstructionInput,
   type InstructionAccountInput,
   type InstructionAccountInputAddress,
   type InstructionSignerInput,
   type ResolvedInstructionAccount,
   type ResolvedInstructionAccountMeta,
 } from "@solana/program-client-core";
+import { findClientePda, findVentaPda } from "../pdas";
 import { REGISTRO_PROGRAM_ADDRESS } from "../programs";
 
 export const CAMBIAR_MONTO_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([
@@ -125,6 +128,153 @@ export function getCambiarMontoInstructionDataCodec(): FixedSizeCodec<
     getCambiarMontoInstructionDataEncoder(),
     getCambiarMontoInstructionDataDecoder(),
   );
+}
+
+export type CambiarMontoAsyncInput<
+  TAccountOwner extends InstructionSignerInput = InstructionSignerInput,
+  TAccountRegistro extends InstructionAccountInput = InstructionAccountInput,
+  TAccountCliente extends InstructionAccountInput = InstructionAccountInput,
+  TAccountVenta extends InstructionAccountInput = InstructionAccountInput,
+> = {
+  owner: TAccountOwner;
+  registro: TAccountRegistro;
+  cliente?: TAccountCliente;
+  venta?: TAccountVenta;
+  idCliente: CambiarMontoInstructionDataArgs["idCliente"];
+  idVenta: CambiarMontoInstructionDataArgs["idVenta"];
+  nuevoMonto: CambiarMontoInstructionDataArgs["nuevoMonto"];
+};
+
+export async function getCambiarMontoInstructionAsync<
+  TAccountOwner extends InstructionSignerInput,
+  TAccountRegistro extends InstructionAccountInput,
+  TAccountCliente extends InstructionAccountInput,
+  TAccountVenta extends InstructionAccountInput,
+  TProgramAddress extends Address = typeof REGISTRO_PROGRAM_ADDRESS,
+>(
+  input: CambiarMontoAsyncInput<
+    TAccountOwner,
+    TAccountRegistro,
+    TAccountCliente,
+    TAccountVenta
+  >,
+  config?: {
+    programAddress?: TProgramAddress | { readonly address: TProgramAddress };
+  },
+): Promise<
+  CambiarMontoInstruction<
+    TProgramAddress,
+    ResolvedInstructionAccountMeta<
+      TAccountOwner,
+      InstructionAccountInputAddress<TAccountOwner>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountRegistro,
+      InstructionAccountInputAddress<TAccountRegistro>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountCliente,
+      InstructionAccountInputAddress<TAccountCliente>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountVenta,
+      InstructionAccountInputAddress<TAccountVenta>
+    >
+  >
+> {
+  // Program address.
+  const programAddressInput =
+    config?.programAddress ?? REGISTRO_PROGRAM_ADDRESS;
+  const programAddress =
+    typeof programAddressInput === "string"
+      ? programAddressInput
+      : programAddressInput.address;
+
+  // Account meta helper.
+  const getAccountMeta = getAccountMetaFactory(programAddress, "programId");
+
+  // Original accounts.
+  const originalAccounts = {
+    owner: { value: input.owner ?? null, isSigner: true, isWritable: false },
+    registro: {
+      value: input.registro ?? null,
+      isSigner: false,
+      isWritable: false,
+    },
+    cliente: {
+      value: input.cliente ?? null,
+      isSigner: false,
+      isWritable: false,
+    },
+    venta: { value: input.venta ?? null, isSigner: false, isWritable: true },
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedInstructionAccount
+  >;
+
+  // Original args.
+  const args = { ...input };
+
+  // Resolve default values.
+  if (!accounts.cliente.value) {
+    accounts.cliente.value = await findClientePda(
+      {
+        registro: getAddressFromResolvedInstructionAccount(
+          "registro",
+          accounts.registro.value,
+        ),
+        idCliente: getNonNullResolvedInstructionInput(
+          "idCliente",
+          args.idCliente,
+        ),
+      },
+      { programAddress },
+    );
+  }
+  if (!accounts.venta.value) {
+    accounts.venta.value = await findVentaPda(
+      {
+        cliente: getAddressFromResolvedInstructionAccount(
+          "cliente",
+          accounts.cliente.value,
+        ),
+        idVenta: getNonNullResolvedInstructionInput("idVenta", args.idVenta),
+      },
+      { programAddress },
+    );
+  }
+
+  return Object.freeze({
+    accounts: [
+      getAccountMeta("owner", accounts.owner),
+      getAccountMeta("registro", accounts.registro),
+      getAccountMeta("cliente", accounts.cliente),
+      getAccountMeta("venta", accounts.venta),
+    ],
+    data: getCambiarMontoInstructionDataEncoder().encode(
+      args as CambiarMontoInstructionDataArgs,
+    ),
+    programAddress,
+  } as CambiarMontoInstruction<
+    TProgramAddress,
+    ResolvedInstructionAccountMeta<
+      TAccountOwner,
+      InstructionAccountInputAddress<TAccountOwner>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountRegistro,
+      InstructionAccountInputAddress<TAccountRegistro>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountCliente,
+      InstructionAccountInputAddress<TAccountCliente>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountVenta,
+      InstructionAccountInputAddress<TAccountVenta>
+    >
+  >);
 }
 
 export type CambiarMontoInput<

@@ -42,6 +42,9 @@ Esto permite registrar varias veces el mismo SKU para un mismo cliente sin colis
 - **Wallet pública de pruebas:** `CgRv5Sj8bgc3Lw3MZ7gDVEdTXfQ9orwpXuUR146tQ8xQ`
 - **Red:** Solana Devnet
 - **RPC público:** `https://api.devnet.solana.com`
+- **Autoridad de despliegue:** `823Ur8Y4Cq9xJ6wZcfZJf9gxExBC8yoc7ZugX5QWvrNP`
+- **Firma de despliegue:** `3repnNLSHz63EoM7cxLoWAzknrasi1aRwDs5hCrQEizPM4vhzEmEqPSgvNYDQUSHTBtqbMKsgN1Q7PwRcLxu4ZrN`
+- **Último slot desplegado:** `525331952`
 
 El frontend queda habilitado contra el Program ID anterior cuando el `.so` y el IDL correspondientes están desplegados en Devnet.
 
@@ -133,10 +136,10 @@ Conserva las firmas disponibles en [Solana Explorer Devnet](https://explorer.sol
 
 - Código publicado: [repositorio](https://github.com/oscaracu/registro-ventas-solana)
 - Commit base actual: `9fbbb6832e099050b6a848de63d65542648142b6`
-- Program ID: generado, pendiente de despliegue confirmado
+- Program ID: generado y confirmado en Devnet
 - Frontend local: preparado
 - Pruebas automatizadas: aprobadas
-- Evidencias Devnet: pendientes de despliegue y aprobación manual de wallet
+- Evidencias Devnet: despliegue confirmado; operaciones manuales pendientes de aprobación en wallet
 
 Consulta las reglas oficiales:
 

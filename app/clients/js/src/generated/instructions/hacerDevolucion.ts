@@ -35,12 +35,15 @@ import {
 } from "@solana/kit";
 import {
   getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  getNonNullResolvedInstructionInput,
   type InstructionAccountInput,
   type InstructionAccountInputAddress,
   type InstructionSignerInput,
   type ResolvedInstructionAccount,
   type ResolvedInstructionAccountMeta,
 } from "@solana/program-client-core";
+import { findClientePda, findVentaPda } from "../pdas";
 import { REGISTRO_PROGRAM_ADDRESS } from "../programs";
 
 export const HACER_DEVOLUCION_DISCRIMINATOR: ReadonlyUint8Array =
@@ -118,6 +121,152 @@ export function getHacerDevolucionInstructionDataCodec(): FixedSizeCodec<
     getHacerDevolucionInstructionDataEncoder(),
     getHacerDevolucionInstructionDataDecoder(),
   );
+}
+
+export type HacerDevolucionAsyncInput<
+  TAccountOwner extends InstructionSignerInput = InstructionSignerInput,
+  TAccountRegistro extends InstructionAccountInput = InstructionAccountInput,
+  TAccountCliente extends InstructionAccountInput = InstructionAccountInput,
+  TAccountVenta extends InstructionAccountInput = InstructionAccountInput,
+> = {
+  owner: TAccountOwner;
+  registro: TAccountRegistro;
+  cliente?: TAccountCliente;
+  venta?: TAccountVenta;
+  idCliente: HacerDevolucionInstructionDataArgs["idCliente"];
+  idVenta: HacerDevolucionInstructionDataArgs["idVenta"];
+};
+
+export async function getHacerDevolucionInstructionAsync<
+  TAccountOwner extends InstructionSignerInput,
+  TAccountRegistro extends InstructionAccountInput,
+  TAccountCliente extends InstructionAccountInput,
+  TAccountVenta extends InstructionAccountInput,
+  TProgramAddress extends Address = typeof REGISTRO_PROGRAM_ADDRESS,
+>(
+  input: HacerDevolucionAsyncInput<
+    TAccountOwner,
+    TAccountRegistro,
+    TAccountCliente,
+    TAccountVenta
+  >,
+  config?: {
+    programAddress?: TProgramAddress | { readonly address: TProgramAddress };
+  },
+): Promise<
+  HacerDevolucionInstruction<
+    TProgramAddress,
+    ResolvedInstructionAccountMeta<
+      TAccountOwner,
+      InstructionAccountInputAddress<TAccountOwner>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountRegistro,
+      InstructionAccountInputAddress<TAccountRegistro>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountCliente,
+      InstructionAccountInputAddress<TAccountCliente>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountVenta,
+      InstructionAccountInputAddress<TAccountVenta>
+    >
+  >
+> {
+  // Program address.
+  const programAddressInput =
+    config?.programAddress ?? REGISTRO_PROGRAM_ADDRESS;
+  const programAddress =
+    typeof programAddressInput === "string"
+      ? programAddressInput
+      : programAddressInput.address;
+
+  // Account meta helper.
+  const getAccountMeta = getAccountMetaFactory(programAddress, "programId");
+
+  // Original accounts.
+  const originalAccounts = {
+    owner: { value: input.owner ?? null, isSigner: true, isWritable: true },
+    registro: {
+      value: input.registro ?? null,
+      isSigner: false,
+      isWritable: false,
+    },
+    cliente: {
+      value: input.cliente ?? null,
+      isSigner: false,
+      isWritable: true,
+    },
+    venta: { value: input.venta ?? null, isSigner: false, isWritable: true },
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedInstructionAccount
+  >;
+
+  // Original args.
+  const args = { ...input };
+
+  // Resolve default values.
+  if (!accounts.cliente.value) {
+    accounts.cliente.value = await findClientePda(
+      {
+        registro: getAddressFromResolvedInstructionAccount(
+          "registro",
+          accounts.registro.value,
+        ),
+        idCliente: getNonNullResolvedInstructionInput(
+          "idCliente",
+          args.idCliente,
+        ),
+      },
+      { programAddress },
+    );
+  }
+  if (!accounts.venta.value) {
+    accounts.venta.value = await findVentaPda(
+      {
+        cliente: getAddressFromResolvedInstructionAccount(
+          "cliente",
+          accounts.cliente.value,
+        ),
+        idVenta: getNonNullResolvedInstructionInput("idVenta", args.idVenta),
+      },
+      { programAddress },
+    );
+  }
+
+  return Object.freeze({
+    accounts: [
+      getAccountMeta("owner", accounts.owner),
+      getAccountMeta("registro", accounts.registro),
+      getAccountMeta("cliente", accounts.cliente),
+      getAccountMeta("venta", accounts.venta),
+    ],
+    data: getHacerDevolucionInstructionDataEncoder().encode(
+      args as HacerDevolucionInstructionDataArgs,
+    ),
+    programAddress,
+  } as HacerDevolucionInstruction<
+    TProgramAddress,
+    ResolvedInstructionAccountMeta<
+      TAccountOwner,
+      InstructionAccountInputAddress<TAccountOwner>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountRegistro,
+      InstructionAccountInputAddress<TAccountRegistro>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountCliente,
+      InstructionAccountInputAddress<TAccountCliente>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountVenta,
+      InstructionAccountInputAddress<TAccountVenta>
+    >
+  >);
 }
 
 export type HacerDevolucionInput<

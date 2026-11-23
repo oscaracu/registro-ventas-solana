@@ -39,12 +39,15 @@ import {
 } from "@solana/kit";
 import {
   getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  getNonNullResolvedInstructionInput,
   type InstructionAccountInput,
   type InstructionAccountInputAddress,
   type InstructionSignerInput,
   type ResolvedInstructionAccount,
   type ResolvedInstructionAccountMeta,
 } from "@solana/program-client-core";
+import { findRegistroPda } from "../pdas";
 import { REGISTRO_PROGRAM_ADDRESS } from "../programs";
 
 export const CREAR_REGISTRO_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([
@@ -117,6 +120,130 @@ export function getCrearRegistroInstructionDataCodec(): Codec<
     getCrearRegistroInstructionDataEncoder(),
     getCrearRegistroInstructionDataDecoder(),
   );
+}
+
+export type CrearRegistroAsyncInput<
+  TAccountOwner extends InstructionSignerInput = InstructionSignerInput,
+  TAccountRegistro extends InstructionAccountInput = InstructionAccountInput,
+  TAccountSystemProgram extends InstructionAccountInput =
+    InstructionAccountInput,
+> = {
+  owner: TAccountOwner;
+  registro?: TAccountRegistro;
+  systemProgram?: TAccountSystemProgram;
+  nombreNegocio: CrearRegistroInstructionDataArgs["nombreNegocio"];
+};
+
+export async function getCrearRegistroInstructionAsync<
+  TAccountOwner extends InstructionSignerInput,
+  TAccountRegistro extends InstructionAccountInput,
+  TAccountSystemProgram extends InstructionAccountInput,
+  TProgramAddress extends Address = typeof REGISTRO_PROGRAM_ADDRESS,
+>(
+  input: CrearRegistroAsyncInput<
+    TAccountOwner,
+    TAccountRegistro,
+    TAccountSystemProgram
+  >,
+  config?: {
+    programAddress?: TProgramAddress | { readonly address: TProgramAddress };
+  },
+): Promise<
+  CrearRegistroInstruction<
+    TProgramAddress,
+    ResolvedInstructionAccountMeta<
+      TAccountOwner,
+      InstructionAccountInputAddress<TAccountOwner>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountRegistro,
+      InstructionAccountInputAddress<TAccountRegistro>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountSystemProgram,
+      InstructionAccountInputAddress<TAccountSystemProgram>
+    >
+  >
+> {
+  // Program address.
+  const programAddressInput =
+    config?.programAddress ?? REGISTRO_PROGRAM_ADDRESS;
+  const programAddress =
+    typeof programAddressInput === "string"
+      ? programAddressInput
+      : programAddressInput.address;
+
+  // Account meta helper.
+  const getAccountMeta = getAccountMetaFactory(programAddress, "programId");
+
+  // Original accounts.
+  const originalAccounts = {
+    owner: { value: input.owner ?? null, isSigner: true, isWritable: true },
+    registro: {
+      value: input.registro ?? null,
+      isSigner: false,
+      isWritable: true,
+    },
+    systemProgram: {
+      value: input.systemProgram ?? null,
+      isSigner: false,
+      isWritable: false,
+    },
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedInstructionAccount
+  >;
+
+  // Original args.
+  const args = { ...input };
+
+  // Resolve default values.
+  if (!accounts.registro.value) {
+    accounts.registro.value = await findRegistroPda(
+      {
+        nombreNegocio: getNonNullResolvedInstructionInput(
+          "nombreNegocio",
+          args.nombreNegocio,
+        ),
+        owner: getAddressFromResolvedInstructionAccount(
+          "owner",
+          accounts.owner.value,
+        ),
+      },
+      { programAddress },
+    );
+  }
+  if (!accounts.systemProgram.value) {
+    accounts.systemProgram.value =
+      "11111111111111111111111111111111" as Address<"11111111111111111111111111111111">;
+  }
+
+  return Object.freeze({
+    accounts: [
+      getAccountMeta("owner", accounts.owner),
+      getAccountMeta("registro", accounts.registro),
+      getAccountMeta("systemProgram", accounts.systemProgram),
+    ],
+    data: getCrearRegistroInstructionDataEncoder().encode(
+      args as CrearRegistroInstructionDataArgs,
+    ),
+    programAddress,
+  } as CrearRegistroInstruction<
+    TProgramAddress,
+    ResolvedInstructionAccountMeta<
+      TAccountOwner,
+      InstructionAccountInputAddress<TAccountOwner>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountRegistro,
+      InstructionAccountInputAddress<TAccountRegistro>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountSystemProgram,
+      InstructionAccountInputAddress<TAccountSystemProgram>
+    >
+  >);
 }
 
 export type CrearRegistroInput<
