@@ -11,6 +11,7 @@
     "typecheck": "tsc -b",
     "test": "node --import tsx --test tests/*.test.ts",
     "configurar:idl": "node scripts/configurar-idl.mjs",
+    "prueba:negativa:wallet": "node --import tsx scripts/prueba-negativa-wallet.mts",
     "clase:dia3": "node scripts/preparar-clase.mjs dia3",
     "clase:dia4": "node scripts/preparar-clase.mjs dia4",
     "clase:resuelto": "node scripts/preparar-clase.mjs resuelto",
