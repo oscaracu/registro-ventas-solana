@@ -116,12 +116,31 @@ Usa una wallet de Devnet y no repitas la seed phrase ni una keypair privada en c
 
 | Caso | Estado inicial | Operación y resultado esperado | Evidencia |
 | --- | --- | --- | --- |
-| Crear Registro | Wallet autorizada con SOL de Devnet | Se crea el PDA de Registro y puede consultarse | Pendiente de despliegue y firma |
-| Crear Cliente Ana | Registro existente | Se crea Cliente #1 y compras comienza en 0 | Pendiente de despliegue y firma |
-| Registrar CAF01 por primera vez | Cliente Ana sin ventas | Se crea Venta #1 con SKU CAF01 | Pendiente de despliegue y firma |
-| Registrar CAF01 nuevamente | Venta #1 ya existente | Se crea Venta #2 con el mismo SKU | Prueba central del aporte; pendiente de despliegue y firma |
-| Cambiar monto | Venta seleccionada existente | Cambia solo el monto de esa Venta | Pendiente de despliegue y firma |
-| Hacer devolución | Venta seleccionada existente | Se elimina el historial, se reduce compras y se cierra la cuenta | Pendiente de despliegue y firma |
+| Crear Registro | Wallet autorizada con SOL de Devnet | Se crea el PDA de Registro y puede consultarse | Completado: firma finalizada `Ok`; registro `Cafe WayLearn Final` |
+| Crear Cliente Ana | Registro existente | Se crea Cliente #1 y compras comienza en 0 | Completado: Ana creada con ID 1 |
+| Registrar CAF01 por primera vez | Cliente Ana sin ventas | Se crea Venta #1 con SKU CAF01 | Completado: PDA `9LeaQE9t2XCxWTyrPSkNJY2AFQ5VWtdSovFrjHTCwef6` |
+| Registrar CAF01 nuevamente | Venta #1 ya existente | Se crea Venta #2 con el mismo SKU | Completado: PDA `z15RmUs7KKTDnwWNVpPZrEzhYfE6HubYSwk7Nw6Vopj`; se permiten dos ventas con CAF01 |
+| Cambiar monto | Venta seleccionada existente | Cambia solo el monto de esa Venta | Completado: el log confirma Venta #2, de monto 50 a 25 |
+| Hacer devolución | Venta seleccionada existente | Se elimina el historial, se reduce compras y se cierra la cuenta | Completado: Venta #1 cerrada; ID 1 devuelto y PDA inexistente |
+
+### Firmas verificadas
+
+| Operación | Firma / Explorer |
+| --- | --- |
+| Despliegue | [3repnNLSHz63EoM7cxLoWAzknrasi1aRwDs5hCrQEizPM4vhzEmEqPSgvNYDQUSHTBtqbMKsgN1Q7PwRcLxu4ZrN](https://explorer.solana.com/tx/3repnNLSHz63EoM7cxLoWAzknrasi1aRwDs5hCrQEizPM4vhzEmEqPSgvNYDQUSHTBtqbMKsgN1Q7PwRcLxu4ZrN?cluster=devnet) |
+| Crear Registro | [2ZQLdTCvTTdhJEcCtTDLVEwQK6ERADJA5k8yfn1r9Qp1zqmL4ZDwszP31axciXKpSFEHpR5XB7GaJvmrSvMjVJZj](https://explorer.solana.com/tx/2ZQLdTCvTTdhJEcCtTDLVEwQK6ERADJA5k8yfn1r9Qp1zqmL4ZDwszP31axciXKpSFEHpR5XB7GaJvmrSvMjVJZj?cluster=devnet) |
+| Crear Ana | [5bCvdtb5ngNbRQhydV8VuPgYYsEVtUkmrVWqqDTBTcSZPRrmZKQUhPuNqFU25BGZyMEPC34SjSXcvcQp2CGpVwRD](https://explorer.solana.com/tx/5bCvdtb5ngNbRQhydV8VuPgYYsEVtUkmrVWqqDTBTcSZPRrmZKQUhPuNqFU25BGZyMEPC34SjSXcvcQp2CGpVwRD?cluster=devnet) |
+| Registrar CAF01 #1 | [5uKF4uSq5nRGDtVvjAxmVhkUNu9R17kRKg4kLXZw3LXWDa1vkAdSFyPq3TYjN69rymvX3SN2XagPx9sPsNAft79m](https://explorer.solana.com/tx/5uKF4uSq5nRGDtVvjAxmVhkUNu9R17kRKg4kLXZw3LXWDa1vkAdSFyPq3TYjN69rymvX3SN2XagPx9sPsNAft79m?cluster=devnet) |
+| Registrar CAF01 #2 | [5nwTMEBHzwqdEUVbARRbDSGpEF7GAzMTtfvjYEKAUtyPWBHYEeokLeawKpDcg7mmuuYM4wbHvrdkasSSwNWuqGDQ](https://explorer.solana.com/tx/5nwTMEBHzwqdEUVbARRbDSGpEF7GAzMTtfvjYEKAUtyPWBHYEeokLeawKpDcg7mmuuYM4wbHvrdkasSSwNWuqGDQ?cluster=devnet) |
+| Cambiar monto | [FKYGJbcSMoLyiJ2LsyAnxuDDK8YprxesY8zQ9BvuwTtPGQWnoXCsMvYW3cdieUpNthriaQr5s9o6xYVB9nh45BN](https://explorer.solana.com/tx/FKYGJbcSMoLyiJ2LsyAnxuDDK8YprxesY8zQ9BvuwTtPGQWnoXCsMvYW3cdieUpNthriaQr5s9o6xYVB9nh45BN?cluster=devnet) |
+| Devolución | [48fRPnaGVDdsFpCJrUr3wyvXeqsJBo7HR5NQsVqsWbbVD1wk5YaJPa8je4vM5YcbPyZDm1spAbW4RRH6fZGW8HVi](https://explorer.solana.com/tx/48fRPnaGVDdsFpCJrUr3wyvXeqsJBo7HR5NQsVqsWbbVD1wk5YaJPa8je4vM5YcbPyZDm1spAbW4RRH6fZGW8HVi?cluster=devnet) |
+
+### Cuentas observadas al finalizar
+
+- Registro: `Cc2c6p4KEKF9ct15e9tNHzdiJ3xPLRjuYMSehSAHaWJ8`, balance `0.00268224 SOL`, propietario del programa.
+- Cliente Ana: `EXGr16T7cEZFSDuzvnDo1tqT5hdHmEAMFkkVnf43t7JQ`, balance `0.00254 SOL`, cuenta `id_cliente=1`, contador de ventas `2` y una compra activa.
+- Venta #1: `9LeaQE9t2XCxWTyrPSkNJY2AFQ5VWtdSovFrjHTCwef6`, cuenta cerrada y no encontrada.
+- Venta #2: `z15RmUs7KKTDnwWNVpPZrEzhYfE6HubYSwk7Nw6Vopj`, cuenta activa con SKU `CAF01`, descripción `Cafe americano` y monto final `25`.
 
 La documentación oficial exige además probar permisos, pertenencia y baja/cierre condicionado. Estos rechazos controlados deben registrarse durante las pruebas manuales:
 
@@ -139,7 +158,7 @@ Conserva las firmas disponibles en [Solana Explorer Devnet](https://explorer.sol
 - Program ID: generado y confirmado en Devnet
 - Frontend local: preparado
 - Pruebas automatizadas: aprobadas
-- Evidencias Devnet: despliegue confirmado; operaciones manuales pendientes de aprobación en wallet
+- Evidencias Devnet: despliegue y seis operaciones manuales confirmados en Devnet
 
 Consulta las reglas oficiales:
 
